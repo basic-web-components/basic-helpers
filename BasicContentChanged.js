@@ -16,19 +16,33 @@ var BasicContentChanged = {
    * Additionally, if a component currently has content, the contentChanged
    * handler will be immediately invoked.
    *
-   * This method is typically invoked by a component's attached handler.
+   * If the optional observeChanges parameter is false, this function will
+   * disconnect any existing observer.
+   *
+   * This method is typically invoked by a component's attached handler, and
+   * the invoked with observeChanges = false in the detached handler.
    *
    * @method observeContentChanges
    */
-  observeContentChanges: function() {
-    if (this.contentChanged) {
-      this._observeContentChanges(this, function() {
-        this._contentChanged();
-      }.bind(this));
-      if (this.childNodes.length > 0) {
-        // Consider any initial content of a new element to be "changed" content.
-        this._contentChanged();
+  observeContentChanges: function(observeChanges) {
+    var observe = (observeChanges == null) ?
+      true :
+      observeChanges;
+    if (observe) {
+      // Start observing
+      if (this.contentChanged) {
+        this._observeContentChanges(this, function() {
+          this._contentChanged();
+        }.bind(this));
+        if (this.childNodes.length > 0) {
+          // Consider any initial content of a new element to be "changed" content.
+          this._contentChanged();
+        }
       }
+    } else if (this._contentChangeObserver) {
+      // Stop observing
+      this._contentChangeObserver.disconnect();
+      this._contentChangeObserver = null;
     }
   },
 
@@ -52,8 +66,8 @@ var BasicContentChanged = {
   // Wire up an observer for (light DOM) content change events on the given
   // node.
   _observeContentChanges: function(node, handler) {
-    var observer = new MutationObserver(handler);
-    observer.observe(node, {
+    this._contentChangeObserver = new MutationObserver(handler);
+    this._contentChangeObserver.observe(node, {
       // attributes: true,
       characterData: true,
       childList: true,

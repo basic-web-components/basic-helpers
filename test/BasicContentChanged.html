@@ -17,8 +17,15 @@ Polymer(Polymer.mixin({
   },
 
   contentChanged: function() {
-    if (this.testHook) {
-      this.testHook();
+    if (this.contentChangedHook) {
+      this.contentChangedHook();
+    }
+  },
+
+  detached: function() {
+    this.observeContentChanges(false);
+    if (this.detachedHook) {
+      this.detatchedHook();
     }
   }
 
@@ -43,7 +50,7 @@ suite('<test-element>', function() {
   test('observe changes in textContent', function(done) {
     var container = document.getElementById('container');
     var fixture = document.createElement('test-element');
-    fixture.testHook = function() {
+    fixture.contentChangedHook = function() {
       assert.equal(fixture.textContent, 'Hello');
       done();
     }
@@ -55,11 +62,26 @@ suite('<test-element>', function() {
     var container = document.getElementById('container');
     var fixture = document.createElement('test-element');
     fixture.textContent = 'Hello';
-    fixture.testHook = function() {
+    fixture.contentChangedHook = function() {
       assert.equal(fixture.textContent, 'Hello');
       done();
     }
     container.appendChild(fixture);
+  });
+
+  test('detaching an element stops it observing future content changes', function(done) {
+    var container = document.getElementById('container');
+    var fixture = document.createElement('test-element');
+    fixture.contentChangedHook = function() {
+      assert.equal(fixture.textContent, 'Hello');
+      fixture.remove();
+      done();
+    };
+    fixture.detatchedHook = function() {
+      fixture.textContent = 'Goodbye';
+    }
+    container.appendChild(fixture);
+    fixture.textContent = 'Hello';
   });
 
 });
