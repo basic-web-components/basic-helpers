@@ -27,6 +27,13 @@ Polymer(Polymer.mixin({
     if (this.detachedHook) {
       this.detatchedHook();
     }
+  },
+
+  publish: {
+    sampleAttribute: {
+      reflect: true,
+      value: null
+    }
   }
 
 }, BasicContentChanged));
@@ -66,6 +73,17 @@ suite('<test-element>', function() {
     fixture.textContent = 'Hello';
   });
 
+  test('observe changes in children', function(done) {
+    var fixture = document.createElement('test-element');
+    fixture.contentChangedHook = function() {
+      assert.equal(fixture.children.length, 1);
+      assert.equal(fixture.textContent, 'Hello');
+      done();
+    };
+    container.appendChild(fixture);
+    fixture.innerHTML = '<div>Hello</div';
+  });
+
   test('specifying initial content triggers initial contentChanged', function(done) {
     var fixture = document.createElement('test-element');
     fixture.textContent = 'Hello';
@@ -99,6 +117,29 @@ suite('<test-element>', function() {
       done();
     };
     fixture.textContent = 'Hello';
+  });
+
+  test('observe changes in child attribute', function(done) {
+    var fixture = document.createElement('test-element');
+    var button = document.createElement('button');
+    fixture.appendChild(button);
+    container.appendChild(fixture);
+    fixture.contentChangedHook = function() {
+      assert.isTrue(button.disabled);
+      done();
+    };
+    button.setAttribute('disabled', '');
+  });
+
+  test("ignore changes in element's own attributes", function(done) {
+    var fixture = document.createElement('test-element');
+    fixture.contentChangedHook = function() {
+      // Shouldn't get invoked.
+      done(new Error("The contentChanged handler was invoked, but shouldn't have been."));
+    };
+    container.appendChild(fixture);
+    fixture.sampleAttribute = 'Hello';
+    setTimeout(done);
   });
 
 });

@@ -42,9 +42,7 @@ var BasicContentChanged = {
     if (observe) {
       // Start observing
       if (this.contentChanged) {
-        this._observeContentChanges(this, function() {
-          this._contentChanged();
-        }.bind(this));
+        this._observeContentChanges(this, this._contentChanged.bind(this));
         if (this.childNodes.length > 0) {
           // Consider any initial content of a new element to be "changed" content.
           this._contentChanged();
@@ -60,7 +58,21 @@ var BasicContentChanged = {
   // Invoke the contentChanged handler -- but first, see if the nodes' new
   // content includes a content element, in which case we'd need to monitor the
   // component's host for changes, too.
-  _contentChanged: function() {
+  _contentChanged: function(mutations) {
+
+    // Special case: attribute mutations on the element itself aren't considered
+    // changes to content, so we ignore them. (Attribute changes are only
+    // treated as content changes if they apply to children.)
+    if (mutations) {
+      var selfAttributeMutations = mutations.filter(function(mutation) {
+        return mutation.target === this && mutation.type === "attributes";
+      }.bind(this));
+      if (selfAttributeMutations.length === mutations.length) {
+        // All mutations were only modifications to this element's own attributes.
+        return;
+      }
+    }
+
     var containsContentNode = (this.querySelector('content') != null);
     if (containsContentNode) {
       // The element's new content contains <content> nodes, so from now on,
@@ -71,6 +83,8 @@ var BasicContentChanged = {
       // watch those too. *sigh*
       this._observeHostContentChanges();
     }
+
+    // Invoke the element's own handler.
     this.contentChanged();
   },
 
@@ -79,7 +93,7 @@ var BasicContentChanged = {
   _observeContentChanges: function(node, handler) {
     node._contentChangeObserver = new MutationObserver(handler);
     node._contentChangeObserver.observe(node, {
-      // attributes: true,
+      attributes: true,
       characterData: true,
       childList: true,
       subtree: true
