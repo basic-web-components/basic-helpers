@@ -10,7 +10,19 @@
 
 <polymer-element name="test-element">
 <script>
-Polymer(Polymer.mixin({}, BasicContentChanged));
+Polymer(Polymer.mixin({
+
+  attached: function() {
+    this.observeContentChanges();
+  },
+
+  contentChanged: function() {
+    if (this.testHook) {
+      this.testHook();
+    }
+  }
+
+}, BasicContentChanged));
 </script>
 </polymer-element>
 
@@ -18,17 +30,38 @@ Polymer(Polymer.mixin({}, BasicContentChanged));
 
 <body>
 
-<test-element id="fixture"></test-element>
+<div id="container"></div>
 
 <script>
 suite('<test-element>', function() {
-  test('raises event', function(done) {
-    var fixture = document.getElementById('fixture');
-    fixture.addEventListener('custom-event', function() {
-      done();
-    });
-    fixture.poke();
+
+  teardown(function() {
+    var container = document.getElementById('container');
+    container.innerHTML = '';
   });
+
+  test('observe changes in textContent', function(done) {
+    var container = document.getElementById('container');
+    var fixture = document.createElement('test-element');
+    fixture.testHook = function() {
+      assert.equal(fixture.textContent, 'Hello');
+      done();
+    }
+    container.appendChild(fixture);
+    fixture.textContent = 'Hello';
+  });
+
+  test('specifying initial content triggers initial contentChanged', function(done) {
+    var container = document.getElementById('container');
+    var fixture = document.createElement('test-element');
+    fixture.textContent = 'Hello';
+    fixture.testHook = function() {
+      assert.equal(fixture.textContent, 'Hello');
+      done();
+    }
+    container.appendChild(fixture);
+  });
+
 });
 </script>
 
