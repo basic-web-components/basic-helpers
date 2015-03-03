@@ -1,18 +1,85 @@
-/*
- * Mixin to help a component monitor changes in its own content.
+/**
+ * Basic helpers related to managing component content.
  *
- * In many cases, a component performs processing of its own children: it
- * performs layout operations on them, it modifies them. There is currently
- * (March 2015) no concise, standard means of doing this. This feature is
- * complicated by the Shadow DOM's support for reprojected content.
+ * These helpers generally deal with the tracking of changes in content, and
+ * flattening a content tree (including distributed content).
+ *
+ * These can be mixed into in any element with the use of Platform.mixin():
+ *
+ * Polymer(Platform.mixin({
+ *
+ *   // Your own properties/methods go here.
+ *   ready: function() { ... }
+ *
+ * }, BasicContentHelpers));
+ *
  */
 
-var BasicContentChanged = {
+var BasicContentHelpers = {
+
+  /*
+   * Returns an in-order collection of children, expanding any content nodes.
+   * Like the standard children property, this skips text nodes.
+   *
+   * TODO: This walks the whole content tree every time the list is requested.
+   * It'd be nice to cache the answer and invalidate it only when content
+   * actually changes.
+   */
+  get flattenChildren() {
+    return this._flatten( this.children, false );
+  },
+
+  /*
+   * Returns an in-order collection of child nodes, expanding any content nodes.
+   * Like the standard childNodes property, this includes text nodes.
+   */
+  get flattenChildNodes() {
+    return this._flatten( this.childNodes, true );
+  },
+
+  get flattenTextContent() {
+    var strings = this.flattenChildNodes.map( function( node ) {
+      return node.textContent;
+    });
+    return strings.join( "" );
+  },
+
+  /*
+   * Given a node, return the children of that element. If any of the children
+   * are content elements, instead of returning the content element, return the
+   * nodes distributed to it. (Apply this rule recursively.)
+   *
+   * If includeTextNodes is true, text nodes will be included, as in the
+   * standard childNodes property; by default, this skips text nodes, like the
+   * standard children property.
+   */
+  _flatten: function( nodes, includeTextNodes ) {
+    var expanded = Array.prototype.map.call( nodes, function( node ) {
+      if ( node instanceof HTMLContentElement ) {
+        // content element; use its distributed nodes instead.
+        return this._flatten( node.getDistributedNodes(), includeTextNodes );
+      } else if ( node instanceof HTMLElement ) {
+        // Plain element; use as is.
+        return [ node ];
+      } else if ( node instanceof Text && includeTextNodes ) {
+        // Text node.
+        return [ node ];
+      } else {
+        // Comment, processing instruction, etc.; skip.
+        return [];
+      }
+    }.bind( this ));
+    var flattened = Array.prototype.concat.apply( [], expanded );
+    return flattened;
+  },
 
   /**
    * Return the host element for this element. If this element is not hosted by
    * another element (it's not attached to anything, or is hosted by the
    * top-level document), this returns null.
+   *
+   * This getter is used by BasicContentHelpers itself, but is also useful
+   * generally.
    */
   get host() {
     for ( var parent = this.parentNode; parent != null; parent = parent.parentNode ) {
@@ -26,8 +93,15 @@ var BasicContentChanged = {
    * If the element has a contentChanged handler, then wire up an observer 
    * that will invoke this handler whenever content changes.
    *
-   * Additionally, if a component currently has content, the contentChanged
-   * handler will be immediately invoked.
+   * In many cases, a component performs processing of its own children: it
+   * performs layout operations on them, it modifies them. There is currently
+   * (March 2015) no concise, standard means of doing this. Moreover, handling
+   * reprojected Shadow DOM content is non-trivial.
+   *
+   * This approach abstracts that complexity behind a "contentChanged" handler.
+   * This will be invoked whenever the component's content changes, including
+   * reprojected content. Additionally, if a component currently has content,
+   * the contentChanged handler will be immediately invoked.
    *
    * If the optional observeChanges parameter is false, this function will
    * disconnect any existing observer.
