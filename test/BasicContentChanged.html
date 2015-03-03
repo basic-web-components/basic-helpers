@@ -33,6 +33,12 @@ Polymer(Polymer.mixin({
 </script>
 </polymer-element>
 
+<polymer-element name="redistribute-element" noscript>
+<template>
+  <test-element id="nestedTestElement"><content></content></test-element>
+</template>
+</polymer-element>
+
 </head>
 
 <body>
@@ -42,35 +48,35 @@ Polymer(Polymer.mixin({
 <script>
 suite('<test-element>', function() {
 
+  this.timeout(2000);
+
+  var container = document.getElementById('container');
+
   teardown(function() {
-    var container = document.getElementById('container');
     container.innerHTML = '';
   });
 
   test('observe changes in textContent', function(done) {
-    var container = document.getElementById('container');
     var fixture = document.createElement('test-element');
     fixture.contentChangedHook = function() {
       assert.equal(fixture.textContent, 'Hello');
       done();
-    }
+    };
     container.appendChild(fixture);
     fixture.textContent = 'Hello';
   });
 
   test('specifying initial content triggers initial contentChanged', function(done) {
-    var container = document.getElementById('container');
     var fixture = document.createElement('test-element');
     fixture.textContent = 'Hello';
     fixture.contentChangedHook = function() {
       assert.equal(fixture.textContent, 'Hello');
       done();
-    }
+    };
     container.appendChild(fixture);
   });
 
   test('detaching an element stops it observing future content changes', function(done) {
-    var container = document.getElementById('container');
     var fixture = document.createElement('test-element');
     fixture.contentChangedHook = function() {
       assert.equal(fixture.textContent, 'Hello');
@@ -79,8 +85,19 @@ suite('<test-element>', function() {
     };
     fixture.detatchedHook = function() {
       fixture.textContent = 'Goodbye';
-    }
+    };
     container.appendChild(fixture);
+    fixture.textContent = 'Hello';
+  });
+
+  test('redistributed content triggers contentChanged', function(done) {
+    var fixture = document.createElement('redistribute-element');
+    var nestedTestElement = fixture.$.nestedTestElement;
+    container.appendChild(fixture);
+    nestedTestElement.contentChangedHook = function() {
+      assert.equal(fixture.textContent, 'Hello');
+      done();
+    };
     fixture.textContent = 'Hello';
   });
 
