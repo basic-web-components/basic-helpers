@@ -5,40 +5,8 @@
 <meta charset="utf-8">
 <script src="../../webcomponentsjs/webcomponents.js"></script>
 <script src="../../web-component-tester/browser.js"></script>
-<link rel="import" href="../../polymer/polymer.html">
-<script src="../BasicContentHelpers.js"></script>
 
-<polymer-element name="test-element">
-<script>
-Polymer(Platform.mixin({
-
-  attached: function() {
-    this.observeContentChanges();
-  },
-
-  contentChanged: function() {
-    if (this.contentChangedHook) {
-      this.contentChangedHook();
-    }
-  },
-
-  detached: function() {
-    this.observeContentChanges(false);
-    if (this.detachedHook) {
-      this.detatchedHook();
-    }
-  },
-
-  publish: {
-    sampleAttribute: {
-      reflect: true,
-      value: null
-    }
-  }
-
-}, BasicContentHelpers));
-</script>
-</polymer-element>
+<link rel="import" href="test-element.html">
 
 <polymer-element name="redistribute-element" noscript>
 <template>
