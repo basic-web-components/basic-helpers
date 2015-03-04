@@ -1,26 +1,3 @@
-<!doctype html>
-<html>
-<head>
-
-<meta charset="utf-8">
-<script src="../../webcomponentsjs/webcomponents.js"></script>
-<script src="../../web-component-tester/browser.js"></script>
-
-<link rel="import" href="test-element.html">
-
-<polymer-element name="redistribute-element" noscript>
-<template>
-  <test-element id="nestedTestElement"><content></content></test-element>
-</template>
-</polymer-element>
-
-</head>
-
-<body>
-
-<div id="container"></div>
-
-<script>
 suite('BasicContentHelpers', function() {
 
   this.timeout(2000);
@@ -77,7 +54,7 @@ suite('BasicContentHelpers', function() {
   });
 
   test('redistributed content triggers contentChanged', function(done) {
-    var fixture = document.createElement('redistribute-element');
+    var fixture = document.createElement('reproject-test');
     var nestedTestElement = fixture.$.nestedTestElement;
     container.appendChild(fixture);
     nestedTestElement.contentChangedHook = function() {
@@ -111,7 +88,3 @@ suite('BasicContentHelpers', function() {
   });
 
 });
-</script>
-
-</body>
-</html>
