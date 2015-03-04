@@ -112,8 +112,7 @@ var BasicContentHelpers = {
    * @method observeContentChanges
    */
   observeContentChanges: function(observeChanges) {
-    var observe = (observeChanges == null) ? true : observeChanges;
-    if (observe) {
+    if (observeChanges == null || observeChanges) {
       // Start observing
       if (this.contentChanged) {
         this._observeContentChanges(this, this._contentChanged.bind(this));
