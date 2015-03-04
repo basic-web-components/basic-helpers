@@ -7,17 +7,6 @@ suite('BasicResizeHelpers', function() {
   // Simulate a resize event.
   var simulateResize = function() {
     var event = new UIEvent('resize');
-    // event.bubbles = false;
-    // event.cancelBubble = false;
-    // event.cancelable = false;
-    // event.currentTarget = Window;
-    // event.defaultPrevented = false;
-    // event.path = Array[1];
-    // event.returnValue = true;
-    // event.srcElement = Window;
-    // event.target = Window;
-    // event.timeStamp = 1425508271138;
-    // event.type = "resize";
     window.dispatchEvent(event);
   };
 
@@ -31,15 +20,17 @@ suite('BasicResizeHelpers', function() {
     assert.equal(fixture.resizeCallCount, 1);
   });
 
-  test('window resize event should trigger resized handler', function(done) {
+  test('window resize event should trigger resized handler if element size changed', function(done) {
     var fixture = document.createElement('resize-test-element');
     container.appendChild(fixture);
     assert.equal(fixture.resizeCallCount, 1);
+    fixture.style.width = "50%";  // Force element to have a different size.
     fixture.resizeCallHook = function() {
       assert.equal(fixture.resizeCallCount, 2);
       done();
     }
-    simulateResize();
+    simulateResize(); // Should trigger resize
+    simulateResize(); // Shouldn't trigger resize, since size won't have changed
   });
 
 });

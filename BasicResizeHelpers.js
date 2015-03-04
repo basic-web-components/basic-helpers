@@ -20,9 +20,21 @@ var BasicResizeHelpers = {
   },
 
   _onResize: function() {
-    if (this.resized) {
-      this.resized();
-    }    
+    var previousSize = this._previousSize;
+    var width = this.offsetWidth;
+    var height = this.offsetHeight;
+    var sizeChanged = ( previousSize == null || 
+        width !== previousSize.width ||
+        height !== previousSize.height );
+    if (sizeChanged) {
+      this._previousSize = {
+        height: height,
+        width: width
+      };
+      if (this.resized) {
+        this.resized();
+      }
+    }
   }
 
 };
