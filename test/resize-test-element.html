@@ -1,0 +1,22 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<script src="../BasicResizeHelpers.js"></script>
+
+<polymer-element name="resize-test-element">
+<script>
+Polymer(Platform.mixin({
+
+  attached: function() {
+    this.listenForResize();
+  },
+
+  detached: function() {
+    this.listenForResize(false);
+  },
+
+  resized: function() {
+  }
+
+}, BasicResizeHelpers));
+</script>
+</polymer-element>
