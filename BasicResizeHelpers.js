@@ -1,5 +1,28 @@
+/**
+ * Basic helpers to let components track changes in their size in response to
+ * window resize events.
+ *
+ * The standard DOM resize event is only available on the top-level window.
+ * Elements that want to know if their own size changed in response to a window
+ * resize often track the window resize event, but a naive event listener will
+ * perform work even if the element's size was unaffected by the resize. These
+ * helpers make it easier to only do work when a window resize actually changed
+ * the element's size.
+ */
+
 var BasicResizeHelpers = {
 
+  /**
+   * Ask to start (or stop) listening to changes in the element's size that
+   * occur in response to a window resize. If the element's size has changed,
+   * an method called resized() will be invoked on the element.
+   *
+   * The resized() method will not be invoked if a window resize didn't actually
+   * affect the size of the element in question.
+   *
+   * @method listenForResize
+   * @param list True (the default) to start listening, false to stop
+   */
   listenForResize: function(listen) {
     if ( listen || listen == null ) {
 
