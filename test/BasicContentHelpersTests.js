@@ -9,7 +9,7 @@ suite('BasicContentHelpers', function() {
   });
 
   test('observe changes in textContent', function(done) {
-    var fixture = document.createElement('test-element');
+    var fixture = document.createElement('content-test-element');
     fixture.contentChangedHook = function() {
       assert.equal(fixture.textContent, 'Hello');
       done();
@@ -19,7 +19,7 @@ suite('BasicContentHelpers', function() {
   });
 
   test('observe changes in children', function(done) {
-    var fixture = document.createElement('test-element');
+    var fixture = document.createElement('content-test-element');
     fixture.contentChangedHook = function() {
       assert.equal(fixture.children.length, 1);
       assert.equal(fixture.textContent, 'Hello');
@@ -30,7 +30,7 @@ suite('BasicContentHelpers', function() {
   });
 
   test('specifying initial content triggers initial contentChanged', function(done) {
-    var fixture = document.createElement('test-element');
+    var fixture = document.createElement('content-test-element');
     fixture.textContent = 'Hello';
     fixture.contentChangedHook = function() {
       assert.equal(fixture.textContent, 'Hello');
@@ -40,7 +40,7 @@ suite('BasicContentHelpers', function() {
   });
 
   test('detaching an element stops it observing future content changes', function(done) {
-    var fixture = document.createElement('test-element');
+    var fixture = document.createElement('content-test-element');
     fixture.contentChangedHook = function() {
       assert.equal(fixture.textContent, 'Hello');
       fixture.remove();
@@ -65,7 +65,7 @@ suite('BasicContentHelpers', function() {
   });
 
   test('observe changes in child attribute', function(done) {
-    var fixture = document.createElement('test-element');
+    var fixture = document.createElement('content-test-element');
     var button = document.createElement('button');
     fixture.appendChild(button);
     container.appendChild(fixture);
@@ -77,7 +77,7 @@ suite('BasicContentHelpers', function() {
   });
 
   test("ignore changes in element's own attributes", function(done) {
-    var fixture = document.createElement('test-element');
+    var fixture = document.createElement('content-test-element');
     fixture.contentChangedHook = function() {
       // Shouldn't get invoked.
       done(new Error("The contentChanged handler was invoked, but shouldn't have been."));
