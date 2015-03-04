@@ -15,7 +15,13 @@ Polymer(Platform.mixin({
   },
 
   resized: function() {
-  }
+    this.resizeCallCount++;
+    if (this.resizeCallHook) {
+      this.resizeCallHook();
+    }
+  },
+
+  resizeCallCount: 0
 
 }, BasicResizeHelpers));
 </script>
