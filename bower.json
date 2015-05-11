@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "dependencies": {
-    "polymer": "Polymer/polymer#0.5.5"
+    "polymer": "Polymer/polymer#^0.5.5"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^2.2.4"
